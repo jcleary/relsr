@@ -1,0 +1,8 @@
+#!/usr/bin/env ruby
+
+require_relative '../lib/relsr' 
+
+dry_run = true
+manager = Relsr::ReleaseManager.new('CorporateRewards/myrewards', 'status: acceptance - done', dry_run)
+manager.create_release
+manager.create_pull_request

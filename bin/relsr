@@ -1,7 +1,7 @@
 #!/usr/bin/env ruby
 
 require 'yaml'
-require_relative '../lib/relsr' 
+require 'relsr' 
 config_file = 'relsr.yml'
 
 unless File.exists?(config_file)

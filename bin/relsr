@@ -6,14 +6,21 @@ config_file = 'relsr.yml'
 
 unless File.exists?(config_file)
   puts 'Could not file relsr.yml file.'
-  exit 0
+  exit 1
 end
 
-config = YAML.load_file('relsr.yml')
-repo = config['repo']
-label = config['label']
+begin
+  config = YAML.load_file(config_file)
+  raise 'repo: has not been set' if config['repo'].nil?
+  raise 'label: has not been set' if config['label'].nil?
+  repo = config['repo']
+  label = config['label']
+rescue StandardError => e
+  puts 'invalid relsr.yml file'
+  puts e.message
+  exit 1
+end
 
-exit 0
 dry_run = true
 manager = Relsr::ReleaseManager.new(repo, label, dry_run)
 manager.create_release

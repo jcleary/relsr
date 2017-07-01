@@ -1,30 +1,50 @@
 require 'octokit'
-Octokit.auto_paginate = true
 
 class ReleaseManager
 
   def initialize(repo_name, label)
     @repo_name = repo_name
     @label = label
+    Octokit.auto_paginate = true
   end
 
   def create_release
-    client.create_ref(@repo_name, "heads/#{release_branch_name}", master.object.sha)
-    merge_branches
+    create_release_branch
+    merge_work_branches
   end
 
   def create_pull_request
+    puts "Creating Pull Request"
+    client.create_pull_request(
+      @repo_name,
+      'master',
+      release_branch_name,
+      release_branch_name,
+      pr_body
+    )
   end
 
   private
 
-  def release_branch_name
-    @release_branch_name ||= Time.now.strftime('release/%Y%m%d-%H%M%S')
+  def create_release_branch
+    puts "Creating release branch '#{release_branch_name}'"  
+    client.create_ref(@repo_name, "heads/#{release_branch_name}", master.object.sha)
   end
 
-  def create_release_branch
-    master = client.refs(@repo_name, 'heads/master')
-    client.create_ref(@repo_name, "heads/#{release_branch_name}", master.object.sha)
+  def merge_work_branches
+    branches_to_merge.each do |work_branch|
+      puts "Merging '#{work_branch}' into release"
+      client.merge(
+        @repo_name, 
+        release_branch_name, 
+        work_branch, 
+        commit_message: "Merging #{work_branch} into release"
+      )
+    end
+  end
+
+  def release_branch_name
+    @release_branch_name ||= Time.now.strftime('release/%Y%m%d-%H%M%S')
   end
 
   def client
@@ -39,26 +59,10 @@ class ReleaseManager
     @branch_names ||= client.branches(@repo_name).collect { |b| b.name }
   end
 
-  def merge_branches
-    branches_to_merge.each do |work_branch|
-      puts work_branch
-      puts release_branch_name
-      next
-      client.merge(
-        @repo_name, 
-        release_branch_name, 
-        work_branch, 
-        commit_message: "Merging #{work_branch} into release"
-      )
-    end
-  end
-
   def branches_to_merge
     branches_to_merge = []
 
-    issues = client.list_issues(@repo_name, labels: @label )
     issues.each do |issue|
-
       branch_names.each do |branch|
         if branch.include? "##{issue.number}"
           branches_to_merge << branch
@@ -70,6 +74,16 @@ class ReleaseManager
 
   def master
     @master ||= client.refs(@repo_name, 'heads/master')
+  end
+
+  def issues
+    @issues ||= client.list_issues(@repo_name, labels: @label)
+  end
+
+  def pr_body
+    issues.collect do |issue|
+      "Connects ##{issue.number} - #{issue.title}"
+    end.join("\n")
   end
 
 end

@@ -2,9 +2,10 @@ require 'octokit'
 
 class ReleaseManager
 
-  def initialize(repo_name, label)
+  def initialize(repo_name, label, dry_run = false)
     @repo_name = repo_name
     @label = label
+    @dry_run = dry_run
     Octokit.auto_paginate = true
   end
 
@@ -15,6 +16,7 @@ class ReleaseManager
 
   def create_pull_request
     puts "Creating Pull Request"
+    return if @dry_run
     client.create_pull_request(
       @repo_name,
       'master',
@@ -28,12 +30,14 @@ class ReleaseManager
 
   def create_release_branch
     puts "Creating release branch '#{release_branch_name}'"  
+    return if @dry_run
     client.create_ref(@repo_name, "heads/#{release_branch_name}", master.object.sha)
   end
 
   def merge_work_branches
     branches_to_merge.each do |work_branch|
       puts "Merging '#{work_branch}' into release"
+      next if @dry_run
       client.merge(
         @repo_name, 
         release_branch_name, 

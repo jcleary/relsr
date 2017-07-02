@@ -6,6 +6,7 @@ module Relsr
     def initialize(repo_name, label, dry_run = false)
       @repo_name = repo_name
       @label = label
+      @release_branch_name = Time.now.strftime('release/%Y%m%d-%H%M%S')
       @dry_run = dry_run
       Octokit.auto_paginate = true
     end
@@ -21,8 +22,8 @@ module Relsr
       client.create_pull_request(
         @repo_name,
         'master',
-        release_branch_name,
-        release_branch_name,
+        @release_branch_name,
+        @release_branch_name,
         pr_body
       )
     end
@@ -30,9 +31,9 @@ module Relsr
     private
 
     def create_release_branch
-      puts "Creating release branch '#{release_branch_name}'"  
+      puts "Creating release branch '#{@release_branch_name}' on '#{@repo_name}'"  
       return if @dry_run
-      client.create_ref(@repo_name, "heads/#{release_branch_name}", master.object.sha)
+      client.create_ref(@repo_name, "heads/#{@release_branch_name}", master.object.sha)
     end
 
     def merge_work_branches
@@ -41,15 +42,11 @@ module Relsr
         next if @dry_run
         client.merge(
           @repo_name, 
-          release_branch_name, 
+          @release_branch_name, 
           work_branch, 
           commit_message: "Merging #{work_branch} into release"
         )
       end
-    end
-
-    def release_branch_name
-      @release_branch_name ||= Time.now.strftime('release/%Y%m%d-%H%M%S')
     end
 
     def client

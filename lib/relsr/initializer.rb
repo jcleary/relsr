@@ -65,8 +65,8 @@ module Relsr
 
     def self.create_default_yaml
       content = {
-        repo: 'username/repo_name',
-        lable: 'acceptance-done'
+       'repo' => 'username/repo_name',
+       'label' => 'acceptance-done'
       }
       File.open(YAML_FILE, 'w') {|f| f.write content.to_yaml }
     end

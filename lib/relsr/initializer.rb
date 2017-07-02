@@ -3,6 +3,9 @@ require 'optparse'
 
 module Relsr
   class Initializer
+
+    YAML_FILE = 'relsr.yml'
+
     def self.init
       parse_options
       parse_yaml
@@ -30,19 +33,19 @@ module Relsr
         end
 
         opts.on("-i", "--init", "Create relst.yml for project") do |v|
-          @options[:init] = true
+          create_default_yaml
+          exit 0
         end
       end.parse!
     end
 
     def self.parse_yaml
-      config_file = 'relsr.yml'
-      unless File.exists?(config_file)
+      unless File.exists?(YAML_FILE)
         puts 'Could not file relsr.yml file.'
         exit 1
       end
       begin
-        config = YAML.load_file(config_file)
+        config = YAML.load_file(YAML_FILE)
         raise 'repo: has not been set' if config['repo'].nil?
         raise 'label: has not been set' if config['label'].nil?
         @repo = config['repo']
@@ -59,5 +62,14 @@ module Relsr
       manager.create_release if @options[:branch]
       manager.create_pull_request if @options[:pull_request]
     end
+
+    def self.create_default_yaml
+      content = {
+        repo: 'username/repo_name',
+        lable: 'acceptance-done'
+      }
+      File.open(YAML_FILE, 'w') {|f| f.write content.to_yaml }
+    end
   end
+
 end

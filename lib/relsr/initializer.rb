@@ -52,7 +52,7 @@ module Relsr
         @label = config['label']
       rescue StandardError => error
         puts 'invalid relsr.yml file'
-        puts erroe.message
+        puts error.message
         exit 1
       end
     end

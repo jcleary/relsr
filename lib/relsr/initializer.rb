@@ -4,7 +4,7 @@ require 'optparse'
 module Relsr
   class Initializer
 
-    YAML_FILE = 'relsr.yml'
+    YAML_FILE = '.relsr.yml'
 
     def self.init
       parse_options
@@ -32,7 +32,7 @@ module Relsr
           @options[:dry_run] = true 
         end
 
-        opts.on("-i", "--init", "Create relst.yml for project") do |v|
+        opts.on("-i", "--init", "Create #{YAML_FILE} for project") do |v|
           create_default_yaml
           exit 0
         end
@@ -41,7 +41,7 @@ module Relsr
 
     def self.parse_yaml
       unless File.exists?(YAML_FILE)
-        puts 'Could not file relsr.yml file.'
+        puts "Could not file #{YAML_FILE} file."
         exit 1
       end
       begin
@@ -51,7 +51,7 @@ module Relsr
         @repo = config['repo']
         @label = config['label']
       rescue StandardError => error
-        puts 'invalid relsr.yml file'
+        puts "invalid #{YAML_FILE} file"
         puts error.message
         exit 1
       end

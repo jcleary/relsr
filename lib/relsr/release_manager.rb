@@ -1,4 +1,5 @@
 require 'octokit'
+require 'colorize'
 
 module Relsr
   class ReleaseManager
@@ -17,35 +18,42 @@ module Relsr
     end
 
     def create_pull_request
-      puts "Creating Pull Request"
-      return if @dry_run
-      client.create_pull_request(
-        @repo_name,
-        'master',
-        @release_branch_name,
-        @release_branch_name,
-        pr_body
-      )
+      print_and_flush "Creating Pull Request..."
+      unless @dry_run
+        client.create_pull_request(
+          @repo_name,
+          'master',
+          @release_branch_name,
+          @release_branch_name,
+          pr_body
+        )
+
+      end
+      puts 'done'.green
     end
 
     private
 
     def create_release_branch
-      puts "Creating release branch '#{@release_branch_name}' on '#{@repo_name}'"  
-      return if @dry_run
-      client.create_ref(@repo_name, "heads/#{@release_branch_name}", master.object.sha)
+      print_and_flush "Creating release branch '#{@release_branch_name}' on '#{@repo_name}'..."  
+      unless @dry_run
+        client.create_ref(@repo_name, "heads/#{@release_branch_name}", master.object.sha)
+      end
+      puts 'done'.green
     end
 
     def merge_work_branches
       branches_to_merge.each do |work_branch|
-        puts "Merging '#{work_branch}' into release"
-        next if @dry_run
-        client.merge(
-          @repo_name, 
-          @release_branch_name, 
-          work_branch, 
-          commit_message: "Merging #{work_branch} into release"
-        )
+        print_and_flush "Merging '#{work_branch}' into release..."
+        unless @dry_run
+          client.merge(
+            @repo_name, 
+            @release_branch_name, 
+            work_branch, 
+            commit_message: "Merging #{work_branch} into release"
+          )
+        end
+        puts 'done'.green
       end
     end
 
@@ -88,5 +96,9 @@ module Relsr
       end.join("\n")
     end
 
+    def print_and_flush(msg)
+      print msg
+      STDOUT.flush
+    end
   end
 end

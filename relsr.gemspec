@@ -19,5 +19,6 @@ Gem::Specification.new do |spec|
 
   spec.add_dependency 'octokit', '~> 4.7'
   spec.add_dependency 'netrc', '~> 0.11'
+  spec.add_dependency 'colorize'
 end
 

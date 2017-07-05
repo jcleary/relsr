@@ -43,19 +43,19 @@ repo: 'CreatekIo/my-app'
 label: 'status: deploying'
 ```
 
-**relsr** uses settings from your `.netrc` file to connect to GitHub. If they are not already there, add the follwing lines to your `.netrc`:
+**relsr** uses settings from your `.netrc` file to connect to GitHub. If you have not already done so, create a GutHub Personal access token and enter the details into your `.netrc` file:
 ```
 machine api.github.com
   login github_username
-  password github_password
+  password personal_access_token
 ```
 ## Creating a release
-To check you have configured everything correctly you can perform a dry-run like so:
+To confirm that you have configured everything correctly you can perform a dry-run like so:
 ```bash
 relsr -dr
 ```
 
-If you have done everything correctly, you should see something like this:
+If all is well you should see something like this:
 ```
 Creating release branch 'release/20170704-205514' on 'jcleary/relsr'...done
 Merging 'feature/#1234-super-cool-feature' into release...done

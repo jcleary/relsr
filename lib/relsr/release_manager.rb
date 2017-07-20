@@ -4,16 +4,17 @@ require 'colorize'
 module Relsr
   class ReleaseManager
 
-    def initialize(repo_name, label, dry_run = false)
+    def initialize(repo_name:, label:, extra_branches: [], dry_run: false)
       @repo_name = repo_name
       @label = label
       @release_branch_name = Time.now.strftime('release/%Y%m%d-%H%M%S')
       @dry_run = dry_run
+      @extra_branches = extra_branches
       Octokit.auto_paginate = true
     end
 
-    def create_release
-      create_release_branch
+    def create_release_branch
+      initialize_release_branch
       merge_work_branches
     end
 
@@ -27,14 +28,13 @@ module Relsr
           @release_branch_name,
           pr_body
         )
-
       end
       puts 'done'.green
     end
 
     private
 
-    def create_release_branch
+    def initialize_release_branch
       print_and_flush "Creating release branch '#{@release_branch_name}' on '#{@repo_name}'..."  
       unless @dry_run
         client.create_ref(@repo_name, "heads/#{@release_branch_name}", master.object.sha)
@@ -79,7 +79,7 @@ module Relsr
           end
         end
       end
-      branches_to_merge
+      branches_to_merge + @extra_branches
     end
 
     def master
@@ -91,9 +91,14 @@ module Relsr
     end
 
     def pr_body
-      issues.collect do |issue|
+      messages = issues.collect do |issue|
         "Connects ##{issue.number} - #{issue.title}"
-      end.join("\n")
+      end 
+      messages += @extra_branches.collect do |branch|
+        "Merging in additional branch '#{branch}'"
+      end
+
+      messages.join("\n")
     end
 
     def print_and_flush(msg)

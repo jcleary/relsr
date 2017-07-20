@@ -15,24 +15,31 @@ module Relsr
     private
 
     def self.parse_options 
-      @options = {}
+      @options = {
+        dry_run: false,
+        extra_branches: []
+      }
       OptionParser.new do |opts|
         opts.banner = "Usage: relsr [options]"
 
-        opts.on("-r", "--release", "Create a release branch and open a pull request") do |v|
-          @options[:branch] = true 
+        opts.on("-r", "--release", "Create a release branch and open a pull request") do 
+          @options[:release_branch] = true 
           @options[:pull_request] = true 
         end
 
-        opts.on("-b", "--branch", "Create a release branch only") do |v|
-          @options[:branch] = true 
+        opts.on("-b", "--branch", "Create a release branch only") do 
+          @options[:release_branch] = true 
         end
 
-        opts.on("-d", "--dry-run", "Dry run") do |v|
+        opts.on("-a", "--add BRANCH", "Add a branch to the release") do |v|
+          @options[:extra_branches] << v 
+        end
+
+        opts.on("-d", "--dry-run", "Dry run") do 
           @options[:dry_run] = true 
         end
 
-        opts.on("-i", "--init", "Create #{YAML_FILE} for project") do |v|
+        opts.on("-i", "--init", "Create #{YAML_FILE} for project in the current folder") do 
           create_default_yaml
           exit 0
         end
@@ -63,8 +70,13 @@ module Relsr
     end
 
     def self.process
-      manager = Relsr::ReleaseManager.new(@repo, @label, @options[:dry_run])
-      manager.create_release if @options[:branch]
+      manager = Relsr::ReleaseManager.new(
+        repo_name: @repo, 
+        label: @label, 
+        dry_run: @options[:dry_run], 
+        extra_branches: @options[:extra_branches]
+      )
+      manager.create_release_branch if @options[:release_branch]
       manager.create_pull_request if @options[:pull_request]
     end
 

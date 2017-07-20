@@ -36,6 +36,11 @@ module Relsr
           create_default_yaml
           exit 0
         end
+
+        opts.on("-v", "--version", "Get version information") do 
+          version_info
+          exit 0
+        end
       end.parse!
     end
 
@@ -69,6 +74,10 @@ module Relsr
        'label' => 'acceptance-done'
       }
       File.open(YAML_FILE, 'w') {|f| f.write content.to_yaml }
+    end
+
+    def self.version_info
+      puts "Relsr version #{Relsr::VERSION}"
     end
   end
 

@@ -62,6 +62,8 @@ module Relsr
         raise 'label: has not been set' if config['label'].nil?
         @repo = config['repo']
         @label = config['label']
+        @options[:extra_branches] += config['add_branches'] if config.key? 'add_branches'
+
       rescue StandardError => error
         puts "invalid #{YAML_FILE} file"
         puts error.message

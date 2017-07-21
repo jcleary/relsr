@@ -12,8 +12,6 @@ module Relsr
       process
     end
 
-    private
-
     def self.parse_options 
       @options = {
         dry_run: false,
@@ -52,7 +50,7 @@ module Relsr
     end
 
     def self.parse_yaml
-      unless File.exists?(YAML_FILE)
+      unless File.exist?(YAML_FILE)
         puts "Could not file #{YAML_FILE} file."
         exit 1
       end

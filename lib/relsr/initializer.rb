@@ -11,7 +11,6 @@ module Relsr
     option :'no-pr', type: :boolean, desc: "Don't create the pull request", default: false
     option :add, desc: 'additional branches to add to the release', type: :array
     def release
-      puts options
       manager = release_manager
       manager.create_release_branch
       manager.create_pull_request unless options['no-pr']

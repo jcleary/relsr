@@ -17,6 +17,7 @@ Gem::Specification.new do |spec|
   spec.executables << 'relsr'
   spec.require_paths = ['lib']
 
+  spec.add_dependency 'thor', '~> 0.19'
   spec.add_dependency 'octokit', '~> 4.7'
   spec.add_dependency 'netrc', '~> 0.11'
   spec.add_dependency 'colorize'

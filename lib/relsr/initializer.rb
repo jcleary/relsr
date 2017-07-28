@@ -1,55 +1,30 @@
 require 'yaml'
-require 'optparse'
+require 'thor'
 
 module Relsr
-  class Initializer
+  class Initializer < Thor
 
     YAML_FILE = '.relsr.yml'
 
-    def self.init
-      parse_options
-      parse_yaml
-      process
+    desc 'release', 'Create a release branch and open a pull request'
+    option :'dry-run', type: :boolean, aliases: '-d'
+    option :'no-pr', type: :boolean, desc: "Don't create the pull request", default: false
+    option :add, desc: 'additional branches to add to the release', type: :array
+    def release
+      puts options
+      manager = release_manager
+      manager.create_release_branch
+      manager.create_pull_request unless options['no-pr']
     end
 
-    def self.parse_options 
-      @options = {
-        dry_run: false,
-        extra_branches: []
-      }
-      OptionParser.new do |opts|
-        opts.banner = "Usage: relsr [options]"
-
-        opts.on("-r", "--release", "Create a release branch and open a pull request") do 
-          @options[:release_branch] = true 
-          @options[:pull_request] = true 
-        end
-
-        opts.on("-b", "--branch", "Create a release branch only") do 
-          @options[:release_branch] = true 
-        end
-
-        opts.on("-a", "--add BRANCH", "Add a branch to the release") do |v|
-          @options[:extra_branches] << v 
-        end
-
-        opts.on("-d", "--dry-run", "Dry run") do 
-          @options[:dry_run] = true 
-        end
-
-        opts.on("-i", "--init", "Create #{YAML_FILE} for project in the current folder") do 
-          create_default_yaml
-          exit 0
-        end
-
-        opts.on("-v", "--version", "Get version information") do 
-          version_info
-          exit 0
-        end
-      end.parse!
+    desc 'init', "Create default #{YAML_FILE} in the current folder"
+    def init
+      create_default_yaml
     end
 
-    def self.parse_yaml
+    private
+
+    def parse_yaml
       unless File.exist?(YAML_FILE)
         puts "Could not file #{YAML_FILE} file."
         exit 1
@@ -60,7 +35,7 @@ module Relsr
         raise 'label: has not been set' if config['label'].nil?
         @repo = config['repo']
         @label = config['label']
-        @options[:extra_branches] += config['add_branches'] if config.key? 'add_branches'
+        @extra_branches += config['add_branches'] if config.key? 'add_branches'
 
       rescue StandardError => error
         puts "invalid #{YAML_FILE} file"
@@ -69,28 +44,25 @@ module Relsr
       end
     end
 
-    def self.process
-      manager = Relsr::ReleaseManager.new(
+    def release_manager
+      @extra_branches = options['add'].to_a
+      parse_yaml
+
+      Relsr::ReleaseManager.new(
         repo_name: @repo, 
         label: @label, 
-        dry_run: @options[:dry_run], 
-        extra_branches: @options[:extra_branches]
+        dry_run: options['dry-run'], 
+        extra_branches: @extra_branches.uniq
       )
-      manager.create_release_branch if @options[:release_branch]
-      manager.create_pull_request if @options[:pull_request]
     end
 
-    def self.create_default_yaml
+    def create_default_yaml
       content = {
        'repo' => 'username/repo_name',
        'label' => 'acceptance-done'
       }
       File.open(YAML_FILE, 'w') {|f| f.write content.to_yaml }
     end
-
-    def self.version_info
-      puts "Relsr version #{Relsr::VERSION}"
-    end
   end
-
 end
+

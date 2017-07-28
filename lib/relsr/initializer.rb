@@ -1,10 +1,10 @@
 require 'yaml'
 require 'thor'
 
-module Relsr
+module releaser
   class Initializer < Thor
 
-    YAML_FILE = '.relsr.yml'
+    YAML_FILE = '.releaser.yml'
 
     desc 'release', 'Create a release branch and open a pull request'
     option :'dry-run', type: :boolean, aliases: '-d'
@@ -47,7 +47,7 @@ module Relsr
       @extra_branches = options['add'].to_a
       parse_yaml
 
-      Relsr::ReleaseManager.new(
+      releaser::ReleaseManager.new(
         repo_name: @repo, 
         label: @label, 
         dry_run: options['dry-run'], 

@@ -28,7 +28,7 @@ gem install relsr
 
 Then, in your project folder run the initializer:
 ```bash
-relsr --init
+relsr init
 ```
 
 This will create a file called `.relsr.yml` in the current folder which you will need to edit. Here is an example:
@@ -47,7 +47,7 @@ machine api.github.com
 ## Creating a release
 To confirm that you have configured everything correctly you can perform a dry-run like so:
 ```bash
-relsr -dr
+relsr release -d
 ```
 
 If all is well you should see something like this:
@@ -60,7 +60,7 @@ Creating Pull Request...done
 
 Once you are ready, you can create the branch and pull request:
 ```
-relsr -r
+relsr release
 ```
 ## Q and As
 **I sometimes push directly to `develop`, but these commits are not being deployed, what should I do?**
@@ -71,14 +71,14 @@ You can either cherry-pick the commits into your next release or into a feature 
 
 **I've got a branch that I want to be included in the next release, but it does not belong to a ticket, how can I include it?**
 
-The easiest way is to use the `-a` option for adding branches, e.g.: 
+The easiest way is to use the `-add` option for adding branches, e.g.: 
 ```
-relst -d -a hotfix/server-config
+relst release --add hotfix/server-config
 ```
 ---
 **I have a branch that receives commits from an external service (such as a translation management tool). Is it possible to include this branch in every release?** 
 
-Yes. You can update the `relst.yaml` file and include the name of the branch (or branches) in the `add_branches:` section, e.g.
+Yes. You can update the `relsr.yml` file and include the name of the branch (or branches) in the `add_branches:` section, e.g.
 ```yaml
 repo: CreatekIo/my-app
 lable: 'status: deploying'

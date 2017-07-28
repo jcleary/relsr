@@ -65,7 +65,7 @@ relsr -r
 ## Q and As
 **I sometimes push directly to `develop`, but these commits are not being deployed, what should I do?**
 
-You can eithe cherry-pick the commits into your next release or into a feature branch that is about to be release.
+You can either cherry-pick the commits into your next release or into a feature branch that is about to be release.
 
 ---
 

@@ -1,7 +1,7 @@
 require 'octokit'
 require 'colorize'
 
-module Relsr
+module releaser
   class ReleaseManager
 
     def initialize(repo_name:, label:, extra_branches: [], dry_run: false)

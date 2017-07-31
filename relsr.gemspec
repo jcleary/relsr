@@ -25,6 +25,7 @@ Gem::Specification.new do |spec|
   spec.add_dependency 'colorize', '~> 0.8.1'
   spec.add_dependency 'netrc', '~> 0.11.0'
   spec.add_dependency 'octokit', '~> 4.7.0'
+  spec.add_dependency 'rugged', '~> 0.26.0'
   spec.add_dependency 'thor', '~> 0.19.4'
 end
 

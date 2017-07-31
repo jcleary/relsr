@@ -21,6 +21,9 @@ module Relsr
       create_default_yaml
     end
 
+    desc 'issue', 'manage issues and local git branches'
+    subcommand 'issue', ::Relsr::Issue
+
     private
 
     def parse_yaml

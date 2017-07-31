@@ -1,7 +1,7 @@
 #!/usr/bin/env ruby
 
-require_relative '../lib/relsr' 
+require 'relsr' 
 
-puts "Relsr version #{Relsr::VERSION}" if ARGV.empty? || ARGV[0] == 'help'
+puts "Relsr version #{Relsr.version}" if ARGV.empty? || ARGV[0] == 'help'
 
 Relsr::Initializer.start(ARGV)
